@@ -1,5 +1,4 @@
 import jwt from 'jsonwebtoken';
-<<<<<<< Updated upstream
 import { prisma } from '../app.js';
 
 export const mockLogin = async (req, res, next) => {
@@ -59,10 +58,10 @@ export const mockLogin = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-=======
+};
 
 const generateToken = (userId) => {
-  return jwt.sign({ userId }, process.env.SESSION_SECRET, {
+  return jwt.sign({ userId }, process.env.SESSION_SECRET || 'fallback_session_secret', {
     expiresIn: '7d',
   });
 };
@@ -99,5 +98,4 @@ export const logout = (req, res) => {
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
   });
   res.status(200).json({ message: 'Logged out successfully' });
->>>>>>> Stashed changes
 };

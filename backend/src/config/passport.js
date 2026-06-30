@@ -5,11 +5,23 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-passport.use(
-  new GoogleStrategy(
+const clientID = process.env.GOOGLE_CLIENT_ID;
+const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+
+export const isGoogleAuthConfigured = Boolean(clientID && clientSecret);
+
+if (!isGoogleAuthConfigured) {
+  console.warn('WARNING: Google OAuth environment variables are missing.');
+  if (!clientID) console.warn('Missing: GOOGLE_CLIENT_ID');
+  if (!clientSecret) console.warn('Missing: GOOGLE_CLIENT_SECRET');
+  console.warn('Google authentication will not work until these are configured.');
+}
+
+if (isGoogleAuthConfigured) {
+  passport.use(new GoogleStrategy(
     {
-      clientID: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      clientID,
+      clientSecret,
       callbackURL: '/api/auth/google/callback',
       scope: ['profile', 'email'],
     },
@@ -43,7 +55,7 @@ passport.use(
         return done(error, null);
       }
     }
-  )
-);
+  ));
+}
 
 export default passport;

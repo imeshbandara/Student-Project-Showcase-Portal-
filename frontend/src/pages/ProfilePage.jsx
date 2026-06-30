@@ -166,13 +166,6 @@ export default function ProfilePage() {
                   <span className="profile-info-value" style={{ fontWeight: 600 }}>{user?.role}</span>
                 </div>
               </div>
-              <div className="profile-info-item" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <Calendar size={18} color="var(--clr-text-muted)" />
-                <div>
-                  <span className="profile-info-label" style={{ display: 'block', fontSize: '11px', color: 'var(--clr-text-muted)', textTransform: 'uppercase' }}>Account Created</span>
-                  <span className="profile-info-value" style={{ fontWeight: 600 }}>{user?.createdAt ? new Date(user.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : '—'}</span>
-                </div>
-              </div>
             </div>
           </div>
         ) : (

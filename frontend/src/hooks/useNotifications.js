@@ -8,7 +8,7 @@ export function useNotifications(page = 1, limit = 20) {
       const { data } = await api.get('/notifications', { params: { page, limit } });
       return data;
     },
-    refetchInterval: 30000, // Poll every 30 seconds to keep list updated
+    refetchInterval: 5000, // Poll every 5 seconds to keep list updated
   });
 }
 
@@ -20,7 +20,7 @@ export function useUnreadCount() {
       return data;
     },
     select: (data) => data.unreadCount ?? 0,
-    refetchInterval: 30000,
+    refetchInterval: 5000,
   });
 }
 

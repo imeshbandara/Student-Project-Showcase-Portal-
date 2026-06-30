@@ -21,7 +21,8 @@ enum NotificationType {
 
 model User {
   id         String   @id @default(uuid())
-  googleId   String   @unique @map("google_id")
+  googleId   String?  @unique @map("google_id")
+  password   String?
   email      String   @unique
   name       String
   avatarUrl  String?  @map("avatar_url")

@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useMyProjects } from '../hooks/useProjects';
 import ProjectFormModal from '../components/ProjectFormModal';
 import api from '../api/axiosInstance';
+import { Plus, FilePlus, Edit2, Trash2, FolderPlus, ImageOff } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -39,21 +40,20 @@ export default function MyProjectsPage() {
           <p className="page-subtitle">{projects.length} project{projects.length !== 1 ? 's' : ''}</p>
         </div>
         <button className="btn btn--primary" onClick={openCreate} id="create-project-btn">
-          <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-            <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-          </svg>
-          New Project
+          <Plus size={16} />
+          <span>New Project</span>
         </button>
       </div>
 
       {projects.length === 0 ? (
         <div className="empty-state-box">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="48" height="48">
-            <path d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-          </svg>
+          <FolderPlus size={48} strokeWidth={1.5} />
           <h3>No projects yet</h3>
           <p>Showcase your work by creating your first project.</p>
-          <button className="btn btn--primary" onClick={openCreate}>Create Project</button>
+          <button className="btn btn--primary" onClick={openCreate}>
+            <Plus size={16} />
+            <span>Create Project</span>
+          </button>
         </div>
       ) : (
         <div className="my-projects-list">
@@ -63,7 +63,9 @@ export default function MyProjectsPage() {
                 {p.thumbnailUrl ? (
                   <img src={`${API_URL}${p.thumbnailUrl}`} alt={p.title} />
                 ) : (
-                  <div className="my-project-thumb-placeholder" />
+                  <div className="my-project-thumb-placeholder">
+                    <ImageOff size={20} strokeWidth={1.5} />
+                  </div>
                 )}
               </div>
               <div className="my-project-info">
@@ -74,8 +76,14 @@ export default function MyProjectsPage() {
                 </span>
               </div>
               <div className="my-project-actions">
-                <button className="btn btn--secondary btn--sm" onClick={() => openEdit(p)}>Edit</button>
-                <button className="btn btn--danger btn--sm" onClick={() => setDeleteTarget(p)}>Delete</button>
+                <button className="btn btn--secondary btn--sm" onClick={() => openEdit(p)}>
+                  <Edit2 size={13} />
+                  <span>Edit</span>
+                </button>
+                <button className="btn btn--danger btn--sm" onClick={() => setDeleteTarget(p)}>
+                  <Trash2 size={13} />
+                  <span>Delete</span>
+                </button>
               </div>
             </div>
           ))}

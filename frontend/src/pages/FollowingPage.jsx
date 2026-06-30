@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import api from '../api/axiosInstance';
+import { getAvatarUrl } from '../utils/avatar';
 import { Users, UserMinus, UserPlus, Mail, Compass } from 'lucide-react';
 
 export default function FollowingPage() {
@@ -62,7 +63,7 @@ export default function FollowingPage() {
             <div key={student.id} className="following-card">
               <div className="following-card-header">
                 {student.avatarUrl ? (
-                  <img src={student.avatarUrl} alt="" className="following-avatar" referrerPolicy="no-referrer" />
+                  <img src={getAvatarUrl(student.avatarUrl)} alt="" className="following-avatar" referrerPolicy="no-referrer" />
                 ) : (
                   <div className="following-avatar following-avatar--fallback">
                     {student.name.charAt(0).toUpperCase()}

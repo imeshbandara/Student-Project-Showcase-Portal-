@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useUnreadCount, useNotifications, useMarkAsRead, useMarkAllAsRead } from '../hooks/useNotifications';
+import { getAvatarUrl } from '../utils/avatar';
 
 function formatTime(dateStr) {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -80,7 +81,7 @@ export default function NotificationBell() {
                   onClick={() => handleNotificationClick(n)}
                 >
                   {n.actor?.avatarUrl ? (
-                    <img src={n.actor.avatarUrl} alt="" className="notif-item-avatar" referrerPolicy="no-referrer" />
+                    <img src={getAvatarUrl(n.actor.avatarUrl)} alt="" className="notif-item-avatar" referrerPolicy="no-referrer" />
                   ) : (
                     <div className="notif-item-avatar notif-item-avatar--fallback">
                       {n.actor?.name?.charAt(0) ?? '?'}

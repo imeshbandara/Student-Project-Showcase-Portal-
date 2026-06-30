@@ -23,7 +23,7 @@ export const getNotifications = async (req, res, next) => {
     const { page, limit } = validation.data;
     const skip = (page - 1) * limit;
 
-    const [notifications, total] = await Promise.all([
+    const [notifications, total, unreadCount] = await Promise.all([
       prisma.notification.findMany({
         where: { userId: req.user.id },
         orderBy: { createdAt: 'desc' },
@@ -41,11 +41,15 @@ export const getNotifications = async (req, res, next) => {
       }),
       prisma.notification.count({
         where: { userId: req.user.id }
+      }),
+      prisma.notification.count({
+        where: { userId: req.user.id, isRead: false }
       })
     ]);
 
     res.status(200).json({
       notifications,
+      unreadCount,
       pagination: {
         total,
         page,

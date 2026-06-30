@@ -12,7 +12,9 @@ import ProjectDetailPage from './pages/ProjectDetailPage';
 import MyProjectsPage from './pages/MyProjectsPage';
 import NotificationsPage from './pages/NotificationsPage';
 import AdminPage from './pages/AdminPage';
+import EditUserPage from './pages/EditUserPage';
 import FollowingPage from './pages/FollowingPage';
+import ProfilePage from './pages/ProfilePage';
 import TermsPage from './pages/TermsPage';
 import PrivacyPage from './pages/PrivacyPage';
 import NotFoundPage from './pages/NotFoundPage';
@@ -45,6 +47,7 @@ export default function App() {
 
           {/* Protected */}
           <Route element={<PrivateRoute />}>
+            <Route path="/profile" element={<AppLayout><ProfilePage /></AppLayout>} />
             <Route path="/notifications" element={<AppLayout><NotificationsPage /></AppLayout>} />
 
             {/* Student only */}
@@ -60,6 +63,7 @@ export default function App() {
             {/* Admin only */}
             <Route element={<RoleRoute allowedRoles={['ADMIN']} redirectTo="/" />}>
               <Route path="/admin" element={<AppLayout><AdminPage /></AppLayout>} />
+              <Route path="/admin/users/:id/edit" element={<AppLayout><EditUserPage /></AppLayout>} />
             </Route>
           </Route>
 

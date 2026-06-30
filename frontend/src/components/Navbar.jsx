@@ -10,8 +10,11 @@ import {
   ShieldAlert, 
   ChevronDown, 
   LogOut, 
-  Terminal 
+  Terminal,
+  User
 } from 'lucide-react';
+
+import { getAvatarUrl } from '../utils/avatar';
 
 export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -99,7 +102,7 @@ export default function Navbar() {
                   aria-haspopup="true"
                 >
                   {user?.avatarUrl ? (
-                    <img src={user.avatarUrl} alt={user.name} className="navbar-avatar" referrerPolicy="no-referrer" />
+                    <img src={getAvatarUrl(user.avatarUrl)} alt={user.name} className="navbar-avatar" referrerPolicy="no-referrer" />
                   ) : (
                     <div className="navbar-avatar navbar-avatar--fallback">
                       {user?.name?.charAt(0)?.toUpperCase() ?? '?'}
@@ -121,6 +124,17 @@ export default function Navbar() {
                       <p className="navbar-dropdown-name">{user?.name}</p>
                       <p className="navbar-dropdown-email">{user?.email}</p>
                     </div>
+                    <div className="navbar-dropdown-divider" />
+                    <Link
+                      to="/profile"
+                      className="navbar-dropdown-item"
+                      onClick={() => setDropdownOpen(false)}
+                      role="menuitem"
+                      style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', color: 'var(--clr-text)', fontSize: '13px', textDecoration: 'none' }}
+                    >
+                      <User size={14} />
+                      <span>My Profile</span>
+                    </Link>
                     <div className="navbar-dropdown-divider" />
                     <button
                       id="navbar-logout-btn"

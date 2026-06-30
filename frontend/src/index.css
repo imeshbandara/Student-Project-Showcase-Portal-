@@ -1467,6 +1467,32 @@ h1, h2, h3, h4, h5, h6 {
   overflow: hidden;
 }
 
+.project-card-student {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--clr-text-muted);
+}
+
+.project-card-student-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.project-card-student-avatar--fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--clr-bg-2);
+  color: var(--clr-text-subtle);
+  font-size: var(--text-xs);
+  font-weight: 600;
+}
+
 /* ── 15. Project Detail ───────────────────────────────────── */
 .detail-layout {
   display: grid;
@@ -1970,6 +1996,21 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
   justify-content: center;
   padding: 0 4px;
+  border: 1.5px solid var(--clr-bg);
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+  animation: pulse-glow 2s infinite;
+}
+
+@keyframes pulse-glow {
+  0% {
+    box-shadow: 0 0 0 0px rgba(239, 68, 68, 0.5), 0 0 6px rgba(239, 68, 68, 0.3);
+  }
+  70% {
+    box-shadow: 0 0 0 5px rgba(239, 68, 68, 0), 0 0 2px rgba(239, 68, 68, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0px rgba(239, 68, 68, 0), 0 0 0px rgba(239, 68, 68, 0);
+  }
 }
 
 .notif-dropdown {

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Heart, ImageOff } from 'lucide-react';
+import { getAvatarUrl } from '../utils/avatar';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -24,7 +25,7 @@ export default function ProjectCard({ project }) {
         <div className="project-card-meta">
           <div className="project-card-student">
             {project.student?.avatarUrl ? (
-              <img src={project.student.avatarUrl} alt="" className="project-card-student-avatar" referrerPolicy="no-referrer" />
+              <img src={getAvatarUrl(project.student.avatarUrl)} alt="" className="project-card-student-avatar" referrerPolicy="no-referrer" />
             ) : (
               <div className="project-card-student-avatar project-card-student-avatar--fallback">
                 {project.student?.name?.charAt(0) ?? '?'}

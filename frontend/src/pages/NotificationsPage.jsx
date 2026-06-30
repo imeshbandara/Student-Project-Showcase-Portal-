@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useNotifications, useMarkAsRead, useMarkAllAsRead } from '../hooks/useNotifications';
+import { getAvatarUrl } from '../utils/avatar';
 import { Heart, UserPlus, FolderPlus, Bell, BellOff, CheckCheck, ChevronLeft, ChevronRight } from 'lucide-react';
 
 function formatTime(dateStr) {
@@ -105,7 +106,7 @@ export default function NotificationsPage() {
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: 0 }}>
                 {n.actor?.avatarUrl ? (
-                  <img src={n.actor.avatarUrl} alt="" className="notif-list-avatar" referrerPolicy="no-referrer" />
+                  <img src={getAvatarUrl(n.actor.avatarUrl)} alt="" className="notif-list-avatar" referrerPolicy="no-referrer" />
                 ) : (
                   <div className="notif-list-avatar notif-list-avatar--fallback">
                     {n.actor?.name?.charAt(0) ?? '?'}

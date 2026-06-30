@@ -5,6 +5,7 @@ import { useLike } from '../hooks/useLike';
 import { useFollow } from '../hooks/useFollow';
 import { useAuth } from '../context/AuthContext';
 import { Heart, GitFork, ArrowLeft, UserPlus, UserMinus, Calendar } from 'lucide-react';
+import { getAvatarUrl } from '../utils/avatar';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -117,7 +118,7 @@ export default function ProjectDetailPage() {
           <div className="detail-student-card">
             <div className="detail-student-info">
               {project.student?.avatarUrl ? (
-                <img src={project.student.avatarUrl} alt="" className="detail-student-avatar" referrerPolicy="no-referrer" />
+                <img src={getAvatarUrl(project.student.avatarUrl)} alt="" className="detail-student-avatar" referrerPolicy="no-referrer" />
               ) : (
                 <div className="detail-student-avatar detail-student-avatar--fallback">
                   {project.student?.name?.charAt(0) ?? '?'}

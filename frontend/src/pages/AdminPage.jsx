@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../api/axiosInstance';
+import { getAvatarUrl } from '../utils/avatar';
 import {
   ShieldCheck, Users, FolderOpen, Heart, Trash2,
   Search, ChevronLeft, ChevronRight, AlertTriangle,
-  UserX, GraduationCap, Briefcase, Crown, BarChart3, PieChart
+  UserX, GraduationCap, Briefcase, Crown, BarChart3, PieChart, Edit
 } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
@@ -478,7 +480,7 @@ export default function AdminPage() {
                         <td>
                           <div className="admin-student-cell">
                             {p.student?.avatarUrl ? (
-                              <img src={p.student.avatarUrl} alt="" className="admin-student-avatar" referrerPolicy="no-referrer" />
+                              <img src={getAvatarUrl(p.student.avatarUrl)} alt="" className="admin-student-avatar" referrerPolicy="no-referrer" />
                             ) : (
                               <div className="admin-student-avatar admin-student-avatar--fallback">
                                 {p.student?.name?.charAt(0) ?? '?'}
@@ -561,7 +563,7 @@ export default function AdminPage() {
                       <td>
                         <div className="admin-student-cell">
                           {u.avatarUrl ? (
-                            <img src={u.avatarUrl} alt="" className="admin-student-avatar" referrerPolicy="no-referrer" />
+                            <img src={getAvatarUrl(u.avatarUrl)} alt="" className="admin-student-avatar" referrerPolicy="no-referrer" />
                           ) : (
                             <div className="admin-student-avatar admin-student-avatar--fallback">
                               {u.name?.charAt(0) ?? '?'}
@@ -578,20 +580,30 @@ export default function AdminPage() {
                       <td style={{ color: 'var(--clr-text-muted)', fontSize: '13px' }}>{u._count?.followers ?? 0}</td>
                       <td className="admin-date-cell">{new Date(u.createdAt).toLocaleDateString()}</td>
                       <td>
-                        {u.role !== 'ADMIN' && (
-                          <button
-                            className="btn btn--danger btn--sm"
-                            onClick={() => {
-                              if (window.confirm(`Delete user "${u.name}"? All their data will be removed.`)) {
-                                deleteUserMutation.mutate(u.id);
-                              }
-                            }}
-                            disabled={deleteUserMutation.isPending}
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <Link
+                            to={`/admin/users/${u.id}/edit`}
+                            className="btn btn--secondary btn--sm"
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                           >
-                            <UserX size={13} />
-                            <span>Remove</span>
-                          </button>
-                        )}
+                            <Edit size={13} />
+                            <span>Edit</span>
+                          </Link>
+                          {u.role !== 'ADMIN' && (
+                            <button
+                              className="btn btn--danger btn--sm"
+                              onClick={() => {
+                                if (window.confirm(`Delete user "${u.name}"? All their data will be removed.`)) {
+                                  deleteUserMutation.mutate(u.id);
+                                }
+                              }}
+                              disabled={deleteUserMutation.isPending}
+                            >
+                              <UserX size={13} />
+                              <span>Remove</span>
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}

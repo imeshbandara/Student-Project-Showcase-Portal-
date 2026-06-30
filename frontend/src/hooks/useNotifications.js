@@ -8,17 +8,18 @@ export function useNotifications(page = 1, limit = 20) {
       const { data } = await api.get('/notifications', { params: { page, limit } });
       return data;
     },
+    refetchInterval: 30000, // Poll every 30 seconds to keep list updated
   });
 }
 
 export function useUnreadCount() {
   return useQuery({
-    queryKey: ['notifications', 1, 100],
+    queryKey: ['notifications', 1, 10], // Match NotificationBell dropdown query key
     queryFn: async () => {
-      const { data } = await api.get('/notifications', { params: { page: 1, limit: 100 } });
+      const { data } = await api.get('/notifications', { params: { page: 1, limit: 10 } });
       return data;
     },
-    select: (data) => data.notifications?.filter((n) => !n.isRead).length ?? 0,
+    select: (data) => data.unreadCount ?? 0,
     refetchInterval: 30000,
   });
 }
@@ -30,11 +31,14 @@ export function useMarkAsRead() {
     mutationFn: (id) => api.patch(`/notifications/${id}/read`),
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: ['notifications'] });
-      // optimistically mark the notification as read across all cached pages
+      
       queryClient.setQueriesData({ queryKey: ['notifications'] }, (old) => {
         if (!old) return old;
+        const target = old.notifications?.find((n) => n.id === id);
+        const wasUnread = target && !target.isRead;
         return {
           ...old,
+          unreadCount: wasUnread ? Math.max(0, (old.unreadCount ?? 1) - 1) : (old.unreadCount ?? 0),
           notifications: old.notifications.map((n) =>
             n.id === id ? { ...n, isRead: true } : n
           ),
@@ -58,6 +62,7 @@ export function useMarkAllAsRead() {
         if (!old) return old;
         return {
           ...old,
+          unreadCount: 0,
           notifications: old.notifications.map((n) => ({ ...n, isRead: true })),
         };
       });

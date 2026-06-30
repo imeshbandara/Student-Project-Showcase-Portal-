@@ -25,32 +25,41 @@ export default function HomePage() {
         <div className="home-hero-content">
           <div className="home-welcome-chip">
             <span className="home-welcome-chip-dot" />
-            Welcome back, {getRoleLabel(user?.role)}
+            {user ? `Welcome back, ${getRoleLabel(user.role)}` : 'Welcome to Showcase'}
           </div>
 
           <h1 className="home-hero-title">
-            Hello,{' '}
-            <span className="home-hero-name">{user?.name?.split(' ')[0] ?? 'there'}</span>{' '}
-            👋
+            {user ? (
+              <>Hello, <span className="home-hero-name">{user.name.split(' ')[0]}</span> 👋</>
+            ) : (
+              <>Discover Student <span className="home-hero-name">Innovation</span> 🚀</>
+            )}
           </h1>
 
           <p className="home-hero-subtitle">
-            {user?.role === 'RECRUITER'
-              ? 'Explore innovative student projects and discover your next hire.'
-              : user?.role === 'ADMIN'
-              ? 'Manage the platform, users, and all project submissions.'
-              : 'Share your work with the world. Showcase your projects and get discovered.'}
+            {user
+              ? user.role === 'RECRUITER'
+                ? 'Explore innovative student projects and discover your next hire.'
+                : user.role === 'ADMIN'
+                ? 'Manage the platform, users, and all project submissions.'
+                : 'Share your work with the world. Showcase your projects and get discovered.'
+              : 'Explore innovative student projects, or log in to share your own work with the world.'}
           </p>
 
           <div className="home-hero-actions">
-            {user?.role === 'STUDENT' && (
+            {!user ? (
+              <Link to="/login" className="btn btn--primary" id="login-btn">
+                Sign In
+              </Link>
+            ) : user.role === 'STUDENT' ? (
               <Link to="/my-projects" className="btn btn--primary" id="upload-project-btn">
                 <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
                   <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
                 </svg>
                 My Projects
               </Link>
-            )}
+            ) : null}
+            
             <Link to="/projects" className="btn btn--secondary" id="browse-projects-btn">
               <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
                 <path d="M9 9a2 2 0 114 0 2 2 0 01-4 0z" />

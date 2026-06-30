@@ -31,11 +31,13 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/auth/callback" element={<AuthCallbackPage />} />
 
+          {/* Public App Routes */}
+          <Route path="/" element={<AppLayout><HomePage /></AppLayout>} />
+          <Route path="/projects" element={<AppLayout><ProjectListPage /></AppLayout>} />
+          <Route path="/projects/:id" element={<AppLayout><ProjectDetailPage /></AppLayout>} />
+
           {/* Protected */}
           <Route element={<PrivateRoute />}>
-            <Route path="/" element={<AppLayout><HomePage /></AppLayout>} />
-            <Route path="/projects" element={<AppLayout><ProjectListPage /></AppLayout>} />
-            <Route path="/projects/:id" element={<AppLayout><ProjectDetailPage /></AppLayout>} />
             <Route path="/notifications" element={<AppLayout><NotificationsPage /></AppLayout>} />
           </Route>
 

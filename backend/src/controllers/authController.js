@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
+import bcrypt from 'bcryptjs';
 import { prisma } from '../config/db.js';
 import { getClearJwtCookieOptions, getJwtCookieOptions, JWT_COOKIE_NAME } from '../utils/cookies.js';
 import { validateBody } from '../utils/validation.js';
@@ -50,12 +51,20 @@ export const mockLogin = async (req, res, next) => {
       }
     }
 
-    // Generate JWT
+    // Generate JWT (Bearer header compatibility)
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       getJwtSecret('JWT_SECRET', 'fallback_secret_key'),
       { expiresIn: '24h' }
     );
+
+    // Generate JWT (HttpOnly Cookie compatibility matching Google OAuth flow)
+    const cookieToken = jwt.sign(
+      { userId: user.id },
+      getJwtSecret('SESSION_SECRET', 'fallback_session_secret'),
+      { expiresIn: '7d' }
+    );
+    res.cookie(JWT_COOKIE_NAME, cookieToken, getJwtCookieOptions());
 
     res.status(200).json({
       message: 'Login successful (mock)',
@@ -102,3 +111,86 @@ export const logout = (req, res) => {
   res.clearCookie(JWT_COOKIE_NAME, getClearJwtCookieOptions());
   res.status(200).json({ message: 'Logged out successfully' });
 };
+
+// Email/Password Signup & Login Schemas
+const loginSchema = z.object({
+  email: z.string().email('Invalid email address').trim().toLowerCase(),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+});
+
+const signupSchema = z.object({
+  email: z.string().email('Invalid email address').trim().toLowerCase(),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+  name: z.string().trim().min(1, 'Name is required').max(100),
+  role: z.enum(['STUDENT', 'RECRUITER']).default('STUDENT'),
+});
+
+// Email/Password Handlers
+export const signup = async (req, res, next) => {
+  try {
+    const { email, password, name, role } = validateBody(signupSchema, req.body);
+
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
+      return res.status(400).json({ error: 'Email is already registered.' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        name,
+        role,
+      },
+    });
+
+    const token = generateToken(user.id);
+    res.cookie(JWT_COOKIE_NAME, token, getJwtCookieOptions());
+
+    res.status(201).json({
+      message: 'Registration successful',
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const login = async (req, res, next) => {
+  try {
+    const { email, password } = validateBody(loginSchema, req.body);
+
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user || !user.password) {
+      return res.status(401).json({ error: 'Invalid email or password.' });
+    }
+
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    if (!isValidPassword) {
+      return res.status(401).json({ error: 'Invalid email or password.' });
+    }
+
+    const token = generateToken(user.id);
+    res.cookie(JWT_COOKIE_NAME, token, getJwtCookieOptions());
+
+    res.status(200).json({
+      message: 'Login successful',
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+

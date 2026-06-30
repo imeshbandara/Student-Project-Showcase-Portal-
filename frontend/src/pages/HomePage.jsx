@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useProjects } from '../hooks/useProjects';
 import ProjectCard from '../components/ProjectCard';
+import { Sparkles, Plus, Compass, LogIn } from 'lucide-react';
 
 export default function HomePage() {
   const { user } = useAuth();
@@ -24,8 +25,8 @@ export default function HomePage() {
 
         <div className="home-hero-content">
           <div className="home-welcome-chip">
-            <span className="home-welcome-chip-dot" />
-            {user ? `Welcome back, ${getRoleLabel(user.role)}` : 'Welcome to Showcase'}
+            <Sparkles size={12} className="home-welcome-chip-icon" />
+            <span>{user ? `Welcome back, ${getRoleLabel(user.role)}` : 'Welcome to Showcase'}</span>
           </div>
 
           <h1 className="home-hero-title">
@@ -49,23 +50,19 @@ export default function HomePage() {
           <div className="home-hero-actions">
             {!user ? (
               <Link to="/login" className="btn btn--primary" id="login-btn">
-                Sign In
+                <LogIn size={16} />
+                <span>Sign In</span>
               </Link>
             ) : user.role === 'STUDENT' ? (
               <Link to="/my-projects" className="btn btn--primary" id="upload-project-btn">
-                <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
-                  <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-                </svg>
-                My Projects
+                <Plus size={16} />
+                <span>My Projects</span>
               </Link>
             ) : null}
             
             <Link to="/projects" className="btn btn--secondary" id="browse-projects-btn">
-              <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
-                <path d="M9 9a2 2 0 114 0 2 2 0 01-4 0z" />
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a4 4 0 00-3.446 6.032l-2.261 2.26a1 1 0 101.414 1.415l2.261-2.261A4 4 0 1011 5z" clipRule="evenodd" />
-              </svg>
-              Browse Projects
+              <Compass size={16} />
+              <span>Browse Projects</span>
             </Link>
           </div>
         </div>

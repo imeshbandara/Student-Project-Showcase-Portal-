@@ -1,20 +1,33 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import api from '../api/axiosInstance';
+import { 
+  Terminal, 
+  LogIn, 
+  UserPlus, 
+  AlertCircle, 
+  User, 
+  Mail, 
+  Lock, 
+  GraduationCap, 
+  Briefcase, 
+  ShieldCheck 
+} from 'lucide-react';
 
-/**
- * LoginPage
- *
- * Shows the "Sign in with Google" button.
- * Clicking it performs a full browser redirect to the backend's /auth/google route.
- * The backend handles the OAuth dance and redirects back to FRONTEND_URL/
- * with the JWT stored in an HttpOnly cookie.
- */
 export default function LoginPage() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, login } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const errorParam = searchParams.get('error');
+
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [role, setRole] = useState('STUDENT'); // STUDENT or RECRUITER
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   // If already logged in, redirect to home
   useEffect(() => {
@@ -23,20 +36,64 @@ export default function LoginPage() {
     }
   }, [isAuthenticated, isLoading, navigate]);
 
+  // Sync url errors
+  useEffect(() => {
+    if (errorParam) {
+      if (errorParam === 'auth_failed') {
+        setError('Google sign-in failed. Please try again.');
+      } else if (errorParam === 'session_expired') {
+        setError('Your session has expired. Please sign in again.');
+      } else {
+        setError('Something went wrong. Please try again.');
+      }
+    }
+  }, [errorParam]);
+
   const handleGoogleLogin = () => {
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
-    // Full browser redirect — Axios/fetch cannot handle OAuth redirects
-    window.location.href = `${backendUrl}/auth/google`;
+    window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`;
   };
 
-  const getErrorMessage = (error) => {
-    switch (error) {
-      case 'auth_failed':
-        return 'Google sign-in failed. Please try again.';
-      case 'session_expired':
-        return 'Your session has expired. Please sign in again.';
-      default:
-        return 'Something went wrong. Please try again.';
+  const handleMockLogin = async (mockRole) => {
+    try {
+      const emailVal = `${mockRole.toLowerCase()}_mock@example.com`;
+      const nameVal = `Mock ${mockRole.charAt(0) + mockRole.slice(1).toLowerCase()}`;
+      const { data } = await api.post('/auth/mock-login', { email: emailVal, name: nameVal, role: mockRole });
+      login(data.user);
+      navigate('/', { replace: true });
+    } catch (err) {
+      setError(err.response?.data?.error ?? 'Mock login failed.');
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      if (isRegistering) {
+        // Signup Flow
+        const { data } = await api.post('/auth/signup', {
+          name: name.trim(),
+          email: email.trim(),
+          password,
+          role
+        });
+        login(data.user);
+        navigate('/', { replace: true });
+      } else {
+        // Signin Flow
+        const { data } = await api.post('/auth/login', {
+          email: email.trim(),
+          password
+        });
+        login(data.user);
+        navigate('/', { replace: true });
+      }
+    } catch (err) {
+      setError(err.response?.data?.error ?? 'Authentication failed. Please check your credentials.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -58,17 +115,7 @@ export default function LoginPage() {
         {/* Logo / brand */}
         <div className="login-logo">
           <div className="login-logo-icon">
-            <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect width="40" height="40" rx="12" fill="url(#loginGrad)" />
-              <path d="M20 8L31 14v12l-11 6L9 26V14L20 8z" stroke="white" strokeWidth="2" fill="none" />
-              <circle cx="20" cy="20" r="4" fill="white" />
-              <defs>
-                <linearGradient id="loginGrad" x1="0" y1="0" x2="40" y2="40">
-                  <stop stopColor="#6366f1" />
-                  <stop offset="1" stopColor="#8b5cf6" />
-                </linearGradient>
-              </defs>
-            </svg>
+            <Terminal size={24} color="white" strokeWidth={2.5} />
           </div>
           <div className="login-logo-text">
             <h1>Showcase</h1>
@@ -76,21 +123,119 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Tagline */}
-        <div className="login-tagline">
-          <p>Discover brilliant student projects.</p>
-          <p>Connect talent with opportunity.</p>
+        {/* Tab switcher */}
+        <div className="auth-tabs">
+          <button
+            type="button"
+            className={`auth-tab ${!isRegistering ? 'auth-tab--active' : ''}`}
+            onClick={() => { setIsRegistering(false); setError(''); }}
+          >
+            <LogIn size={15} />
+            <span>Sign In</span>
+          </button>
+          <button
+            type="button"
+            className={`auth-tab ${isRegistering ? 'auth-tab--active' : ''}`}
+            onClick={() => { setIsRegistering(true); setError(''); }}
+          >
+            <UserPlus size={15} />
+            <span>Sign Up</span>
+          </button>
         </div>
 
         {/* Error banner */}
-        {errorParam && (
-          <div className="login-error" role="alert">
-            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-            </svg>
-            {getErrorMessage(errorParam)}
+        {error && (
+          <div className="login-error animate-fade-in" role="alert">
+            <AlertCircle size={16} />
+            <span>{error}</span>
           </div>
         )}
+
+        {/* Auth form */}
+        <form onSubmit={handleSubmit} className="auth-form">
+          {isRegistering && (
+            <div className="form-group">
+              <label htmlFor="auth-name">
+                <User size={14} />
+                <span>Full Name</span>
+              </label>
+              <input
+                id="auth-name"
+                type="text"
+                placeholder="John Doe"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </div>
+          )}
+
+          <div className="form-group">
+            <label htmlFor="auth-email">
+              <Mail size={14} />
+              <span>Email Address</span>
+            </label>
+            <input
+              id="auth-email"
+              type="email"
+              placeholder="name@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="auth-password">
+              <Lock size={14} />
+              <span>Password</span>
+            </label>
+            <input
+              id="auth-password"
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          {isRegistering && (
+            <div className="form-group">
+              <label>Join As</label>
+              <div className="role-cards">
+                <div
+                  className={`role-card ${role === 'STUDENT' ? 'role-card--active' : ''}`}
+                  onClick={() => setRole('STUDENT')}
+                >
+                  <GraduationCap size={20} className="role-card-icon" />
+                  <div className="role-card-content">
+                    <span className="role-card-title">Student</span>
+                    <span className="role-card-desc">Showcase your own innovation</span>
+                  </div>
+                </div>
+                <div
+                  className={`role-card ${role === 'RECRUITER' ? 'role-card--active' : ''}`}
+                  onClick={() => setRole('RECRUITER')}
+                >
+                  <Briefcase size={20} className="role-card-icon" />
+                  <div className="role-card-content">
+                    <span className="role-card-title">Recruiter</span>
+                    <span className="role-card-desc">Discover outstanding talent</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <button type="submit" className="btn btn--primary login-submit-btn" disabled={loading}>
+            {loading ? <div className="spinner spinner--sm" /> : isRegistering ? 'Create Account' : 'Sign In'}
+          </button>
+        </form>
+
+        <div className="login-divider">
+          <span>or continue with</span>
+        </div>
 
         {/* Google login button */}
         <button
@@ -105,8 +250,46 @@ export default function LoginPage() {
             <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
             <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
           </svg>
-          Sign in with Google
+          Google Account
         </button>
+
+        {/* Mock Login for Local Development */}
+        {import.meta.env.DEV && (
+          <div className="mock-login-section">
+            <div className="mock-login-divider">
+              <span>Or local mock login</span>
+            </div>
+            <div className="mock-login-buttons">
+              <button
+                id="mock-login-student"
+                className="btn btn--secondary btn--sm"
+                onClick={() => handleMockLogin('STUDENT')}
+                type="button"
+              >
+                <GraduationCap size={14} />
+                <span>Student</span>
+              </button>
+              <button
+                id="mock-login-recruiter"
+                className="btn btn--secondary btn--sm"
+                onClick={() => handleMockLogin('RECRUITER')}
+                type="button"
+              >
+                <Briefcase size={14} />
+                <span>Recruiter</span>
+              </button>
+              <button
+                id="mock-login-admin"
+                className="btn btn--secondary btn--sm"
+                onClick={() => handleMockLogin('ADMIN')}
+                type="button"
+              >
+                <ShieldCheck size={14} />
+                <span>Admin</span>
+              </button>
+            </div>
+          </div>
+        )}
 
         <p className="login-footer">
           By signing in, you agree to our{' '}

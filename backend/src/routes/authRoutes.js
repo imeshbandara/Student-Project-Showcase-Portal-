@@ -1,11 +1,15 @@
 import express from 'express';
 import passport from 'passport';
-import { mockLogin, googleCallback, getMe, logout } from '../controllers/authController.js';
+import { mockLogin, googleCallback, getMe, logout, signup, login } from '../controllers/authController.js';
 import { authenticate, requireAuth } from '../middlewares/authMiddleware.js';
 import { authRateLimiter } from '../middlewares/rateLimitMiddleware.js';
 import { isGoogleAuthConfigured } from '../config/passport.js';
 
 const router = express.Router();
+
+// Email/Password Auth routes
+router.post('/signup', authRateLimiter, signup);
+router.post('/login', authRateLimiter, login);
 
 const requireGoogleAuthConfigured = (req, res, next) => {
   if (!isGoogleAuthConfigured) {

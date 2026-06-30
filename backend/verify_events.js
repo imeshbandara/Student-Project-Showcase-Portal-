@@ -1,12 +1,15 @@
 import pg from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
+import dotenv from 'dotenv';
 
-const pool = new pg.Pool({ connectionString: 'postgresql://postgres:123456@localhost:5432/student_showcase?schema=public' });
+dotenv.config();
+
+const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
-const BASE_URL = 'http://localhost:5000';
+const BASE_URL = process.env.BACKEND_URL || 'http://localhost:5000';
 
 async function verify() {
   try {

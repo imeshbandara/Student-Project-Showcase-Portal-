@@ -135,6 +135,9 @@ export const listProjects = async (req, res, next) => {
     const skip = (page - 1) * limit;
 
     const where = { isArchived: false }; // Hide archived projects by default
+    if (req.user && req.user.role === 'ADMIN') {
+      delete where.isArchived; // Admin sees everything
+    }
     if (studentId) {
       where.studentId = studentId;
       // If the owner themselves is requesting their list, show archived projects too

@@ -168,11 +168,11 @@ export default function HomePage() {
   const recentProjects = publicData?.projects ?? [];
 
   // Student specific queries
-  const { data: studentData } = useMyProjects(user?.id);
+  const { data: studentData, isLoading: studentLoading } = useMyProjects(user?.id);
   const studentProjects = studentData?.projects ?? [];
 
   // Recruiter specific queries
-  const { data: followingList } = useQuery({
+  const { data: followingList, isLoading: recruiterLoading } = useQuery({
     queryKey: ['following'],
     queryFn: async () => {
       const { data: resData } = await api.get('/users/following');
@@ -183,8 +183,16 @@ export default function HomePage() {
   const recruiterFollowing = followingList ?? [];
 
   // Admin stats
-  const { data: adminAllData } = useProjects(1, 100);
+  const { data: adminAllData, isLoading: adminLoading, error: adminError } = useProjects(1, 100);
   const adminAllProjects = adminAllData?.projects ?? [];
+
+  // Debugging log for the browser console
+  console.log('[Showcase Debug] Admin Dashboard Query:', {
+    adminLoading,
+    adminError: adminError?.message || adminError,
+    adminAllData,
+    projectsFetchedCount: adminAllProjects.length
+  });
 
   const getRoleLabel = (role) => {
     switch (role) {
@@ -196,6 +204,16 @@ export default function HomePage() {
 
   const renderDashboard = () => {
     if (user.role === 'STUDENT') {
+      if (studentLoading) {
+        return (
+          <div className="dashboard-grid">
+            <div className="dashboard-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '120px' }}><div className="spinner" /></div>
+            <div className="dashboard-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '120px' }}><div className="spinner" /></div>
+            <div className="dashboard-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '120px' }}><div className="spinner" /></div>
+          </div>
+        );
+      }
+
       const totalLikes = studentProjects.reduce((acc, curr) => acc + (curr._count?.likes ?? curr.likes?.length ?? 0), 0);
       const chartData = studentProjects.map(p => ({
         label: p.title,
@@ -232,6 +250,16 @@ export default function HomePage() {
     }
 
     if (user.role === 'RECRUITER') {
+      if (recruiterLoading) {
+        return (
+          <div className="dashboard-grid">
+            <div className="dashboard-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '120px' }}><div className="spinner" /></div>
+            <div className="dashboard-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '120px' }}><div className="spinner" /></div>
+            <div className="dashboard-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '120px' }}><div className="spinner" /></div>
+          </div>
+        );
+      }
+
       const totalFollowedProjects = recruiterFollowing.reduce((acc, curr) => acc + (curr.projectsCount ?? 0), 0);
       const chartData = recruiterFollowing.map(student => ({
         label: student.name,
@@ -268,6 +296,16 @@ export default function HomePage() {
     }
 
     if (user.role === 'ADMIN') {
+      if (adminLoading) {
+        return (
+          <div className="dashboard-grid">
+            <div className="dashboard-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '120px' }}><div className="spinner" /></div>
+            <div className="dashboard-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '120px' }}><div className="spinner" /></div>
+            <div className="dashboard-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '120px' }}><div className="spinner" /></div>
+          </div>
+        );
+      }
+
       const totalLikes = adminAllProjects.reduce((acc, curr) => acc + (curr._count?.likes ?? curr.likes?.length ?? 0), 0);
       const chartData = adminAllProjects.map(p => ({
         label: p.title,
@@ -281,7 +319,7 @@ export default function HomePage() {
             <div className="dashboard-card">
               <div className="dashboard-card-glow" />
               <span className="dashboard-card-title">Showcase Size</span>
-              <span className="dashboard-card-value">{adminAllProjects.length}</span>
+              <span className="dashboard-card-value">{adminAllData?.pagination?.total ?? adminAllProjects.length}</span>
             </div>
             <div className="dashboard-card">
               <div className="dashboard-card-glow" style={{ background: 'radial-gradient(circle, rgba(217, 70, 239, 0.1) 0%, transparent 70%)' }} />

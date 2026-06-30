@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useProjects } from '../hooks/useProjects';
 import ProjectCard from '../components/ProjectCard';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function ProjectListPage() {
   const [page, setPage] = useState(1);
@@ -39,7 +40,8 @@ export default function ProjectListPage() {
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page <= 1}
           >
-            ← Previous
+            <ChevronLeft size={16} />
+            <span>Previous</span>
           </button>
           <div className="pagination-pages">
             {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((p) => (
@@ -57,7 +59,8 @@ export default function ProjectListPage() {
             onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
             disabled={page >= pagination.totalPages}
           >
-            Next →
+            <span>Next</span>
+            <ChevronRight size={16} />
           </button>
         </div>
       )}

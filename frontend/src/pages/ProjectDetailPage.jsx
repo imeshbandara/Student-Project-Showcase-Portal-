@@ -4,6 +4,7 @@ import { useProject } from '../hooks/useProjects';
 import { useLike } from '../hooks/useLike';
 import { useFollow } from '../hooks/useFollow';
 import { useAuth } from '../context/AuthContext';
+import { Heart, GitFork, ArrowLeft, UserPlus, UserMinus, Calendar } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -48,15 +49,16 @@ export default function ProjectDetailPage() {
     if (isFollowing) {
       setIsFollowing(false);
       unfollow.mutate(undefined, {
-        onError: () => setIsFollowing(true),
+        onError: () => { setIsFollowing(true); },
       });
     } else {
       setIsFollowing(true);
       follow.mutate(undefined, {
-        onError: () => setIsFollowing(false),
+        onError: () => { setIsFollowing(false); },
       });
     }
   };
+
 
   if (isLoading) return <div className="page-spinner"><div className="spinner" /></div>;
   if (isError || !project) return <div className="page-center"><p className="empty-state">Project not found.</p></div>;
@@ -65,7 +67,10 @@ export default function ProjectDetailPage() {
 
   return (
     <div className="page-container">
-      <Link to="/projects" className="back-link">← Back to projects</Link>
+      <Link to="/projects" className="back-link">
+        <ArrowLeft size={16} />
+        <span>Back to projects</span>
+      </Link>
 
       <div className="detail-layout">
         <div className="detail-main">
@@ -80,16 +85,17 @@ export default function ProjectDetailPage() {
 
           {project.repositoryUrl && (
             <a href={project.repositoryUrl} target="_blank" rel="noopener noreferrer" className="detail-repo-link">
-              <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
-                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-              </svg>
-              View Repository
+              <GitFork size={16} />
+              <span>View Repository</span>
             </a>
           )}
 
           <div className="detail-meta">
             <span className="detail-date">
-              Posted {new Date(project.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+              <Calendar size={14} />
+              <span>
+                Posted {new Date(project.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+              </span>
             </span>
           </div>
         </div>
@@ -102,9 +108,7 @@ export default function ProjectDetailPage() {
             disabled={!user}
             id="like-button"
           >
-            <svg viewBox="0 0 20 20" fill={hasLiked ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.5" width="20" height="20">
-              <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
-            </svg>
+            <Heart size={20} fill={hasLiked ? 'currentColor' : 'none'} />
             <span>{likeCount}</span>
             <span className="detail-action-label">{hasLiked ? 'Liked' : 'Like'}</span>
           </button>
@@ -131,7 +135,17 @@ export default function ProjectDetailPage() {
                 onClick={handleFollow}
                 id="follow-button"
               >
-                {isFollowing ? 'Following' : 'Follow'}
+                {isFollowing ? (
+                  <>
+                    <UserMinus size={15} />
+                    <span>Unfollow</span>
+                  </>
+                ) : (
+                  <>
+                    <UserPlus size={15} />
+                    <span>Follow</span>
+                  </>
+                )}
               </button>
             )}
           </div>

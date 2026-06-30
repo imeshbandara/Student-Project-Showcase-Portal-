@@ -2,6 +2,18 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axiosInstance';
+import { 
+  Terminal, 
+  LogIn, 
+  UserPlus, 
+  AlertCircle, 
+  User, 
+  Mail, 
+  Lock, 
+  GraduationCap, 
+  Briefcase, 
+  ShieldCheck 
+} from 'lucide-react';
 
 export default function LoginPage() {
   const { isAuthenticated, isLoading, login } = useAuth();
@@ -38,62 +50,42 @@ export default function LoginPage() {
   }, [errorParam]);
 
   const handleGoogleLogin = () => {
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
-    window.location.href = `${backendUrl}/auth/google`;
+    window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`;
   };
 
   const handleMockLogin = async (mockRole) => {
     try {
-      const mockEmail = `${mockRole.toLowerCase()}_mock@example.com`;
-      const mockName = `Mock ${mockRole.charAt(0) + mockRole.slice(1).toLowerCase()}`;
-      const { data } = await api.post('/auth/mock-login', { email: mockEmail, name: mockName, role: mockRole });
+      const emailVal = `${mockRole.toLowerCase()}_mock@example.com`;
+      const nameVal = `Mock ${mockRole.charAt(0) + mockRole.slice(1).toLowerCase()}`;
+      const { data } = await api.post('/auth/mock-login', { email: emailVal, name: nameVal, role: mockRole });
       login(data.user);
       navigate('/', { replace: true });
     } catch (err) {
-      console.error('Mock login failed:', err);
+      setError(err.response?.data?.error ?? 'Mock login failed.');
     }
-  };
-
-  const validateEmail = (emailStr) => {
-    return /\S+@\S+\.\S+/.test(emailStr);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
-    // Client-side validations
-    if (isRegistering && !name.trim()) {
-      setError('Name is required.');
-      return;
-    }
-    if (!email.trim() || !validateEmail(email)) {
-      setError('Please enter a valid email address.');
-      return;
-    }
-    if (!password || password.length < 6) {
-      setError('Password must be at least 6 characters.');
-      return;
-    }
-
     setLoading(true);
 
     try {
       if (isRegistering) {
-        // Signup call
+        // Signup Flow
         const { data } = await api.post('/auth/signup', {
-          email,
-          password,
           name: name.trim(),
-          role,
+          email: email.trim(),
+          password,
+          role
         });
         login(data.user);
         navigate('/', { replace: true });
       } else {
-        // Login call
+        // Signin Flow
         const { data } = await api.post('/auth/login', {
-          email,
-          password,
+          email: email.trim(),
+          password
         });
         login(data.user);
         navigate('/', { replace: true });
@@ -123,17 +115,7 @@ export default function LoginPage() {
         {/* Logo / brand */}
         <div className="login-logo">
           <div className="login-logo-icon">
-            <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect width="40" height="40" rx="12" fill="url(#loginGrad)" />
-              <path d="M20 8L31 14v12l-11 6L9 26V14L20 8z" stroke="white" strokeWidth="2" fill="none" />
-              <circle cx="20" cy="20" r="4" fill="white" />
-              <defs>
-                <linearGradient id="loginGrad" x1="0" y1="0" x2="40" y2="40">
-                  <stop stopColor="#6366f1" />
-                  <stop offset="1" stopColor="#8b5cf6" />
-                </linearGradient>
-              </defs>
-            </svg>
+            <Terminal size={24} color="white" strokeWidth={2.5} />
           </div>
           <div className="login-logo-text">
             <h1>Showcase</h1>
@@ -148,24 +130,24 @@ export default function LoginPage() {
             className={`auth-tab ${!isRegistering ? 'auth-tab--active' : ''}`}
             onClick={() => { setIsRegistering(false); setError(''); }}
           >
-            Sign In
+            <LogIn size={15} />
+            <span>Sign In</span>
           </button>
           <button
             type="button"
             className={`auth-tab ${isRegistering ? 'auth-tab--active' : ''}`}
             onClick={() => { setIsRegistering(true); setError(''); }}
           >
-            Sign Up
+            <UserPlus size={15} />
+            <span>Sign Up</span>
           </button>
         </div>
 
         {/* Error banner */}
         {error && (
           <div className="login-error animate-fade-in" role="alert">
-            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-            </svg>
-            {error}
+            <AlertCircle size={16} />
+            <span>{error}</span>
           </div>
         )}
 
@@ -173,7 +155,10 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} className="auth-form">
           {isRegistering && (
             <div className="form-group">
-              <label htmlFor="auth-name">Full Name</label>
+              <label htmlFor="auth-name">
+                <User size={14} />
+                <span>Full Name</span>
+              </label>
               <input
                 id="auth-name"
                 type="text"
@@ -186,7 +171,10 @@ export default function LoginPage() {
           )}
 
           <div className="form-group">
-            <label htmlFor="auth-email">Email Address</label>
+            <label htmlFor="auth-email">
+              <Mail size={14} />
+              <span>Email Address</span>
+            </label>
             <input
               id="auth-email"
               type="email"
@@ -198,7 +186,10 @@ export default function LoginPage() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="auth-password">Password</label>
+            <label htmlFor="auth-password">
+              <Lock size={14} />
+              <span>Password</span>
+            </label>
             <input
               id="auth-password"
               type="password"
@@ -217,7 +208,7 @@ export default function LoginPage() {
                   className={`role-card ${role === 'STUDENT' ? 'role-card--active' : ''}`}
                   onClick={() => setRole('STUDENT')}
                 >
-                  <div className="role-card-radio" />
+                  <GraduationCap size={20} className="role-card-icon" />
                   <div className="role-card-content">
                     <span className="role-card-title">Student</span>
                     <span className="role-card-desc">Showcase your own innovation</span>
@@ -227,7 +218,7 @@ export default function LoginPage() {
                   className={`role-card ${role === 'RECRUITER' ? 'role-card--active' : ''}`}
                   onClick={() => setRole('RECRUITER')}
                 >
-                  <div className="role-card-radio" />
+                  <Briefcase size={20} className="role-card-icon" />
                   <div className="role-card-content">
                     <span className="role-card-title">Recruiter</span>
                     <span className="role-card-desc">Discover outstanding talent</span>
@@ -275,7 +266,8 @@ export default function LoginPage() {
                 onClick={() => handleMockLogin('STUDENT')}
                 type="button"
               >
-                Student
+                <GraduationCap size={14} />
+                <span>Student</span>
               </button>
               <button
                 id="mock-login-recruiter"
@@ -283,7 +275,8 @@ export default function LoginPage() {
                 onClick={() => handleMockLogin('RECRUITER')}
                 type="button"
               >
-                Recruiter
+                <Briefcase size={14} />
+                <span>Recruiter</span>
               </button>
               <button
                 id="mock-login-admin"
@@ -291,7 +284,8 @@ export default function LoginPage() {
                 onClick={() => handleMockLogin('ADMIN')}
                 type="button"
               >
-                Admin
+                <ShieldCheck size={14} />
+                <span>Admin</span>
               </button>
             </div>
           </div>

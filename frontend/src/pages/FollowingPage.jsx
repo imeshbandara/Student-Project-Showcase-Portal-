@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import api from '../api/axiosInstance';
+import { Users, UserMinus, UserPlus, Mail, Compass } from 'lucide-react';
 
 export default function FollowingPage() {
   const queryClient = useQueryClient();
@@ -46,12 +47,13 @@ export default function FollowingPage() {
 
       {data.length === 0 ? (
         <div className="empty-state-box animate-fade-in">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="48" height="48">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.251 0-4.37-.59-6.224-1.625z" />
-          </svg>
+          <Users size={48} strokeWidth={1.5} />
           <h3>You aren't following anyone yet</h3>
           <p>Discover innovative student projects and follow creators to receive their updates here.</p>
-          <Link to="/projects" className="btn btn--primary">Browse Projects</Link>
+          <Link to="/projects" className="btn btn--primary">
+            <Compass size={16} />
+            <span>Browse Projects</span>
+          </Link>
         </div>
       ) : (
         <div className="following-grid animate-fade-in">
@@ -68,7 +70,8 @@ export default function FollowingPage() {
                 <div className="following-profile-info">
                   <h3 className="following-name">{student.name}</h3>
                   <a href={`mailto:${student.email}`} className="following-email">
-                    {student.email}
+                    <Mail size={12} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
+                    <span style={{ verticalAlign: 'middle' }}>{student.email}</span>
                   </a>
                 </div>
               </div>
@@ -104,7 +107,8 @@ export default function FollowingPage() {
                   onClick={() => unfollowMutation.mutate(student.id)}
                   disabled={unfollowMutation.isPending}
                 >
-                  {unfollowMutation.isPending ? 'Unfollowing...' : 'Unfollow'}
+                  <UserMinus size={14} />
+                  <span>{unfollowMutation.isPending ? 'Unfollowing...' : 'Unfollow'}</span>
                 </button>
               </div>
             </div>

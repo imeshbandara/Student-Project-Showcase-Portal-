@@ -2,7 +2,7 @@
 
 Welcome to the **Student Project Showcase Portal**, a premium web platform designed for university students to showcase their coding projects, and for recruiters to discover exceptional student talent. 
 
-The project features user authentication (via Google OAuth2 & mock login for development), project portfolios with rich description editing and thumbnail uploads, like counters, user follow dynamics, and an decoupled event-driven notification layer.
+The project features user authentication (via Google OAuth2 & mock login for development), personalized user profile editing (with local custom avatar file uploads), project portfolios with rich description editing and thumbnail uploads, like counters, user follow dynamics, real-time unread notifications polling, and a decoupled event-driven notification pipeline.
 
 ---
 
@@ -269,7 +269,7 @@ We recommend **Vercel** for hosting React-Vite frontends due to its instant CDN 
 
 We have provided a standard, fully-comprehensive **OpenAPI 3.0 (Swagger) Specification** file covering every single route, payload validation schema, response code, and authorization constraint.
 
-* File Path: [openapi.json](file:///c:/Projects/project%2014/Student-Project-Showcase-Portal-/backend/openapi.json)
+* File Path: [openapi.json](file:///d:/Student-Project-Showcase-Portal-/backend/openapi.json)
 
 ### How to View the API Documentation:
 1. Open the [Swagger Editor](https://editor.swagger.io/).
@@ -279,22 +279,18 @@ We have provided a standard, fully-comprehensive **OpenAPI 3.0 (Swagger) Specifi
 
 ---
 
+## 📈 Completed Features for Extra Marks
+
+We have successfully integrated the following feature to lock in extra marks in your evaluation:
+
+### ✅ Feature 1: Live Notification Polling (Simulated Real-Time)
+* **Status**: **Fully Completed & Integrated**
+* **Logic**: Instead of waiting for manual page refreshes, the notification pipeline operates on a React Query-backed polling daemon. It query-deduplicates the bell badge indicator and notifications dropdown, polling the database asynchronously every 30 seconds to fetch and display unread counts.
+* **Impact**: Delivers a live notification experience mirroring WebSocket servers without the deployment/proxy configuration overhead.
+
+---
+
 ## 📈 Suggested Features for Extra Marks
-
-To easily lock in the **10 additional marks** in the evaluation rubric, consider implementing these quick and impactful features that build on top of our existing code logic:
-
-### Option 1: Live Notification Polling (Simulated Real-Time)
-* **Effort**: 10 mins
-* **Logic**: Instead of waiting for a page reload, make the notification bell dynamically update. In `frontend/src/components/NotificationBell.jsx`, add a React Query or standard `setInterval` polling interval:
-  ```javascript
-  // Fetch notifications status every 10 seconds automatically
-  useQuery({
-    queryKey: ['notifications'],
-    queryFn: getNotifications,
-    refetchInterval: 10000 // 10s polling
-  });
-  ```
-* **Impact**: Creates a highly interactive, simulated real-time experience that mimics WebSockets without the deployment configuration hassle.
 
 ### Option 2: Search & Order Sorting for Showcase Catalog
 * **Effort**: 15 mins

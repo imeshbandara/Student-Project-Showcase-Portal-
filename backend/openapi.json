@@ -1198,6 +1198,299 @@
           }
         }
       }
+    },
+    "/users/profile": {
+      "put": {
+        "summary": "Update Current User Profile",
+        "description": "Allows the currently authenticated user to update their display name and upload a profile picture.",
+        "security": [
+          { "BearerAuth": [] },
+          { "CookieAuth": [] }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "example": "Vihanga Kulathilake"
+                  },
+                  "avatar": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Profile picture image file."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Profile updated successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Profile updated successfully."
+                    },
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed or file error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/following": {
+      "get": {
+        "summary": "List Followed Users",
+        "description": "Retrieves the list of student creators followed by the currently authenticated recruiter.",
+        "security": [
+          { "BearerAuth": [] },
+          { "CookieAuth": [] }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of followed users fetched successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "following": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string", "format": "uuid" },
+                          "name": { "type": "string" },
+                          "email": { "type": "string", "format": "email" },
+                          "avatarUrl": { "type": "string", "nullable": true },
+                          "projectsCount": { "type": "integer" },
+                          "followedAt": { "type": "string", "format": "date-time" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/all": {
+      "get": {
+        "summary": "List All Users (Admin Only)",
+        "description": "Retrieves details of all users registered on the platform, including project and follower counts. Restricted to users with the ADMIN role.",
+        "security": [
+          { "BearerAuth": [] },
+          { "CookieAuth": [] }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of users.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "users": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string", "format": "uuid" },
+                          "name": { "type": "string" },
+                          "email": { "type": "string", "format": "email" },
+                          "role": { "type": "string" },
+                          "avatarUrl": { "type": "string", "nullable": true },
+                          "createdAt": { "type": "string", "format": "date-time" },
+                          "_count": {
+                            "type": "object",
+                            "properties": {
+                              "projects": { "type": "integer" },
+                              "followers": { "type": "integer" },
+                              "following": { "type": "integer" }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden. Requires ADMIN role.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "summary": "Get User Details (Admin Only)",
+        "description": "Retrieves the account information for a user by their unique UUID. Restricted to users with the ADMIN role.",
+        "security": [
+          { "BearerAuth": [] },
+          { "CookieAuth": [] }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User details.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found."
+          }
+        }
+      },
+      "put": {
+        "summary": "Update User Account (Admin Only)",
+        "description": "Modifies the profile name, email, or role permissions of a specific user. Restricted to users with the ADMIN role.",
+        "security": [
+          { "BearerAuth": [] },
+          { "CookieAuth": [] }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "email", "role"],
+                "properties": {
+                  "name": { "type": "string", "example": "John Doe Updated" },
+                  "email": { "type": "string", "format": "email", "example": "john.updated@example.com" },
+                  "role": { "type": "string", "enum": ["STUDENT", "RECRUITER", "ADMIN"], "example": "RECRUITER" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User updated successfully."
+          },
+          "400": {
+            "description": "Email already in use or validation error."
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete User Account (Admin Only)",
+        "description": "Deletes a user account and cascading data (like published projects and follow relationships). Restricted to ADMIN role. Cannot delete own logged-in session.",
+        "security": [
+          { "BearerAuth": [] },
+          { "CookieAuth": [] }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User account successfully deleted."
+          },
+          "400": {
+            "description": "Cannot delete own account."
+          }
+        }
+      }
     }
   },
   "components": {

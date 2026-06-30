@@ -21,6 +21,7 @@ export function useLike(projectId) {
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['project', projectId] });
       queryClient.invalidateQueries({ queryKey: ['projects'] });
+      queryClient.invalidateQueries({ queryKey: ['myProjects'] });
     },
   });
 
@@ -41,6 +42,7 @@ export function useLike(projectId) {
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['project', projectId] });
       queryClient.invalidateQueries({ queryKey: ['projects'] });
+      queryClient.invalidateQueries({ queryKey: ['myProjects'] });
     },
   });
 
